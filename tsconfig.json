@@ -1,0 +1,72 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "noEmit": true,
+
+    // Environment Settings
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "esnext",
+    "lib": ["esnext", "dom"],
+    "types": ["node", "@playwright/test"],
+
+    // Interop and File Controls
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // Other Outputs
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    // Stricter Typechecking Options
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": false,
+
+    // Style Options
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+    // Recommended Options
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true,
+
+    // Path Aliases
+    "paths": {
+      "@config": ["./src/config/index.ts"],
+      "@config/*": ["./src/config/*"],
+      "@network": ["./src/network/index.ts"],
+      "@network/*": ["./src/network/*"],
+      "@database": ["./src/database/index.ts"],
+      "@database/*": ["./src/database/*"],
+      "@repositories": ["./src/database/repositories/index.ts"],
+      "@repositories/*": ["./src/database/repositories/*"],
+      "@pages": ["./src/pages/index.ts"],
+      "@pages/*": ["./src/pages/*"],
+      "@components": ["./src/pages/components/index.ts"],
+      "@components/*": ["./src/pages/components/*"],
+      "@services": ["./src/services/index.ts"],
+      "@services/*": ["./src/services/*"],
+      "@schemas": ["./src/schemas/index.ts"],
+      "@schemas/*": ["./src/schemas/*"],
+      "@fixtures": ["./src/fixtures/index.ts"],
+      "@fixtures/*": ["./src/fixtures/*"],
+      "@utils": ["./src/utils/index.ts"],
+      "@utils/*": ["./src/utils/*"],
+      "@observability": ["./src/observability/index.ts"],
+      "@observability/*": ["./src/observability/*"],
+      "@data": ["./src/data/index.ts"],
+      "@data/*": ["./src/data/*"]
+    }
+  },
+  "include": ["src/**/*", "tests/**/*", "playwright.config.ts"],
+  "exclude": ["node_modules", "dist", "reports", "test-results"]
+}

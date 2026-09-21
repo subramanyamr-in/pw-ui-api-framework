@@ -1,0 +1,76 @@
+name: Playwright Automation Pipeline
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    name: Execute Quality Gate & Test Suites
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Quality Gate (TypeCheck + Lint + Prettier)
+        run: npm run quality
+
+      - name: Install Playwright Browsers with OS Dependencies
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Test Automation Suite
+        run: npm test
+        env:
+          CI: true
+          APP_ENV: qa
+          APP_BASE_URL: https://aura-eyecare.vercel.app
+          API_BASE_URL: https://aura-eyecare.vercel.app/api
+          ADMIN_EMAIL: admin@aura-eyecare.com
+          ADMIN_PASSWORD: Password123!
+          RUNNER_WORKERS: 2
+          RUNNER_RETRIES: 1
+          RUNNER_LOG_LEVEL: info
+
+      - name: Generate Allure Report
+        if: always()
+        run: npm run allure:generate
+
+      - name: Upload HTML Test Report Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-html-report
+          path: reports/html/
+          retention-days: 14
+
+      - name: Upload Allure Report Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: reports/allure-report/
+          retention-days: 14
+
+      - name: Upload Test Summary Metrics Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: execution-summary
+          path: |
+            reports/summary.json
+            reports/junit.xml
+            reports/logs/execution.log
+          retention-days: 14
