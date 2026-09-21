@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enterprise Testing Workflow Guide: Web UI, REST API & Database (360° E2E)</title>
+  <style>
+    :root {
+      --bg-primary: #0a0e17;
+      --bg-secondary: #111827;
+      --bg-card: #1b2438;
+      --bg-card-hover: #222e47;
+      --accent-cyan: #38bdf8;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-purple: #8b5cf6;
+      --accent-rose: #f43f5e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #2e3b55;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      padding: 2.5rem 1.5rem;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(139, 92, 246, 0.1));
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 3rem;
+      margin-bottom: 3rem;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::after {
+      content: "";
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.35rem 0.9rem;
+      border-radius: 9999px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      margin-bottom: 1.25rem;
+    }
+
+    h1 {
+      font-size: 2.7rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 1rem;
+      background: linear-gradient(to right, #ffffff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p.subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 900px;
+    }
+
+    /* Grid of 3 Core Pillars */
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .pillar-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    .pillar-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(56, 189, 248, 0.5);
+      background: var(--bg-card-hover);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .pillar-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .icon-web { background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); }
+    .icon-api { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .icon-db  { background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.3); }
+
+    .pillar-card h3 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .pillar-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .pillar-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .pill-tag {
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      color: #cbd5e1;
+    }
+
+    /* Workflow Diagram & Steps */
+    h2.section-heading {
+      font-size: 1.85rem;
+      font-weight: 800;
+      margin: 3.5rem 0 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    h2.section-heading::before {
+      content: "";
+      width: 5px;
+      height: 1.6rem;
+      background: var(--accent-cyan);
+      border-radius: 3px;
+    }
+
+    .workflow-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      margin-bottom: 3.5rem;
+      position: relative;
+    }
+
+    .timeline-step {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2rem;
+      align-items: start;
+    }
+
+    .step-number {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(139, 92, 246, 0.2));
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--accent-cyan);
+    }
+
+    .step-content h4 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+
+    .step-content p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .code-block {
+      background: #0d121d;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: #e2e8f0;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+
+    .code-comment { color: #64748b; font-style: italic; }
+    .code-kw { color: #f43f5e; font-weight: 600; }
+    .code-fn { color: #38bdf8; }
+    .code-str { color: #34d399; }
+
+    /* Interactive 360 Test Showcase */
+    .showcase-card {
+      background: linear-gradient(180deg, #162035 0%, #0f172a 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 2.5rem;
+      margin-bottom: 3.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .showcase-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--accent-cyan);
+    }
+
+    /* Comparison & Matrix Table */
+    .table-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 3.5rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.92rem;
+    }
+
+    th {
+      background: #11192d;
+      color: var(--text-muted);
+      padding: 1.25rem 1.5rem;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    td {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      vertical-align: top;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .tag-scope {
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .tag-web { background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan); }
+    .tag-api { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); }
+    .tag-db  { background: rgba(139, 92, 246, 0.15); color: var(--accent-purple); }
+    .tag-hybrid { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2.5rem 0;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.88rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="badge-pill">
+        <span>●</span> Unified Enterprise Testing Architecture
+      </div>
+      <h1>Testing Workflow Guide: Web UI, REST API & Database</h1>
+      <p class="subtitle">
+        A comprehensive reference blueprint explaining how Web UI, REST API, and PostgreSQL database operations are executed individually and orchestrated synchronously in 360° Hybrid E2E flows with zero test data pollution.
+      </p>
+    </header>
+
+    <!-- 3 Core Testing Pillars -->
+    <div class="pillars-grid">
+      <!-- Web UI Pillar -->
+      <div class="pillar-card">
+        <div class="pillar-icon icon-web">🌐</div>
+        <h3>1. Web UI Workflow</h3>
+        <p>
+          Component-driven Page Object Model (POM) with scoped element locators and native Playwright auto-waiting. Fully isolated browser sessions with pre-authenticated storageState.
+        </p>
+        <div class="pillar-tags">
+          <span class="pill-tag">uiTest</span>
+          <span class="pill-tag">BasePage</span>
+          <span class="pill-tag">BaseComponent</span>
+          <span class="pill-tag">Auto-Wait</span>
+          <span class="pill-tag">Failure Screenshot</span>
+        </div>
+      </div>
+
+      <!-- API Pillar -->
+      <div class="pillar-card">
+        <div class="pillar-icon icon-api">⚡</div>
+        <h3>2. REST API Workflow</h3>
+        <p>
+          Headless HTTP execution using native <code>APIRequestContext</code> via <code>HttpDriver</code>. Runtime schema validation with Zod to detect contract drift, and process-safe token handling.
+        </p>
+        <div class="pillar-tags">
+          <span class="pill-tag">apiTest</span>
+          <span class="pill-tag">HttpDriver</span>
+          <span class="pill-tag">TokenVault</span>
+          <span class="pill-tag">Zod Contracts</span>
+          <span class="pill-tag">Zero Browser Overhead</span>
+        </div>
+      </div>
+
+      <!-- DB Pillar -->
+      <div class="pillar-card">
+        <div class="pillar-icon icon-db">🗄️</div>
+        <h3>3. Database Workflow</h3>
+        <p>
+          Enterprise PostgreSQL connection pool via <code>DbClient</code>. Atomic rollback transactions, parameterized SQL injection prevention, and typed Repository pattern.
+        </p>
+        <div class="pillar-tags">
+          <span class="pill-tag">dbTest</span>
+          <span class="pill-tag">DbClient</span>
+          <span class="pill-tag">pg.Pool</span>
+          <span class="pill-tag">UserRepository</span>
+          <span class="pill-tag">State Verification</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 360-Degree Hybrid Lifecycle -->
+    <h2 class="section-heading">The 360° Hybrid E2E Workflow Lifecycle</h2>
+    <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 1rem;">
+      In mission-critical enterprise applications, verifying UI state alone is insufficient. The hybrid workflow ensures that an action taken in the UI propagates through the API layer, commits accurately to the database, and is automatically dismantled post-test.
+    </p>
+
+    <div class="workflow-timeline">
+      <!-- Step 1: Pre-Condition Seeding via API -->
+      <div class="timeline-step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>Fast Setup & Data Seeding via REST API</h4>
+          <p>
+            Instead of slowly navigating through multiple UI pages to create prerequisite data, tests invoke domain API services (e.g. <code>AuthService</code>, <code>HttpDriver</code>) to seed records instantly via high-speed headless HTTP requests.
+          </p>
+          <div class="code-block">
+<span class="code-comment">// Seed prerequisite test data in &lt;100ms without browser overhead</span>
+<span class="code-kw">const</span> authResponse = <span class="code-kw">await</span> authService.<span class="code-fn">login</span>({
+  email: <span class="code-str">'admin@aura-eyecare.com'</span>,
+  password: <span class="code-str">'Password123!'</span>,
+});
+<span class="code-comment">// Token is automatically stored in process-safe TokenVault for all workers</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: UI Action & User Journey -->
+      <div class="timeline-step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h4>Web UI User Journey Execution</h4>
+          <p>
+            The test triggers real user interaction through component-driven page objects. Playwright navigates, fills forms, submits dialogs, and validates visible feedback leveraging native auto-waiting.
+          </p>
+          <div class="code-block">
+<span class="code-comment">// Navigate and submit form through component-driven POM</span>
+<span class="code-kw">await</span> basePage.<span class="code-fn">navigate</span>(<span class="code-str">'/appointments'</span>);
+<span class="code-kw">await</span> appointmentModal.<span class="code-fn">fillAndSubmit</span>({
+  patientId: <span class="code-str">'usr_abc123'</span>,
+  doctor: <span class="code-str">'Dr. Smith'</span>,
+  date: <span class="code-str">'2026-10-15'</span>,
+});
+<span class="code-kw">await</span> <span class="code-fn">expect</span>(notificationBanner.<span class="code-fn">locator</span>()).<span class="code-fn">toContainText</span>(<span class="code-str">'Appointment Confirmed'</span>);
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Direct Database State Verification -->
+      <div class="timeline-step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h4>Direct Database State Verification (Repository Pattern)</h4>
+          <p>
+            A UI success message can mask asynchronous queue drops or data corruption. The test immediately queries PostgreSQL through <code>DbClient</code> and repositories to confirm persistence and integrity.
+          </p>
+          <div class="code-block">
+<span class="code-comment">// Query DB directly to prove the database record exists with correct attributes</span>
+<span class="code-kw">const</span> record = <span class="code-kw">await</span> userRepo.<span class="code-fn">findByEmail</span>(<span class="code-str">'patient@aura-eyecare.com'</span>);
+<span class="code-fn">expect</span>(record).<span class="code-fn">not.toBeNull</span>();
+<span class="code-fn">expect</span>(record?.is_active).<span class="code-fn">toBe</span>(<span class="code-kw">true</span>);
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Guaranteed Teardown -->
+      <div class="timeline-step">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h4>Automated LIFO Teardown via TestDataRegistry</h4>
+          <p>
+            Any created entity is registered with <code>TestDataRegistry</code>. When the test finishes (even if an assertion fails midway!), registered cleanups execute in reverse order (LIFO), eliminating test data pollution.
+          </p>
+          <div class="code-block">
+<span class="code-comment">// Register for post-test cleanup; executed unconditionally in fixture teardown!</span>
+registry.<span class="code-fn">register</span>(<span class="code-str">'appointment'</span>, appointmentId, <span class="code-kw">async</span> () => {
+  <span class="code-kw">await</span> http.<span class="code-fn">delete</span>(<span class="code-str">`/api/appointments/${appointmentId}`</span>);
+});
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Complete Unified Test Specification Example -->
+    <div class="showcase-card">
+      <h3>Live Spec: Complete 360° Hybrid Test Implementation</h3>
+      <p style="color: var(--text-muted); margin-bottom: 1.25rem;">
+        Here is how all three layers (Web, API, DB) converge in a clean, typed test file using our unified fixture:
+      </p>
+      <div class="code-block">
+<span class="code-kw">import</span> { hybridTest <span class="code-kw">as</span> test, expect } <span class="code-kw">from</span> <span class="code-str">'@fixtures'</span>;
+
+test.<span class="code-fn">describe</span>(<span class="code-str">'Complete 360° Appointment Lifecycle @smoke'</span>, () => {
+  test(<span class="code-str">'Seed patient via API, book via UI, verify in PostgreSQL & auto-cleanup'</span>, <span class="code-kw">async</span> ({
+    basePage,     <span class="code-comment">// Web UI Layer</span>
+    http,         <span class="code-comment">// REST API Layer</span>
+    db,           <span class="code-comment">// Database Client</span>
+    userRepo,     <span class="code-comment">// Typed Repository</span>
+    registry,     <span class="code-comment">// Automated Cleanup Tracker</span>
+    logger,       <span class="code-comment">// Structured Winston Logger</span>
+  }) => {
+    logger.<span class="code-fn">info</span>(<span class="code-str">'Step 1: Checking PostgreSQL connection health...'</span>);
+    <span class="code-kw">const</span> isHealthy = <span class="code-kw">await</span> db.<span class="code-fn">isHealthy</span>();
+    <span class="code-fn">expect</span>(isHealthy).<span class="code-fn">toBe</span>(<span class="code-kw">true</span>);
+
+    logger.<span class="code-fn">info</span>(<span class="code-str">'Step 2: Navigating Web UI with pre-authenticated state...'</span>);
+    <span class="code-kw">await</span> basePage.<span class="code-fn">navigate</span>(<span class="code-str">'/'</span>);
+    <span class="code-fn">expect</span>(basePage.<span class="code-fn">getUrl</span>()).<span class="code-fn">toContain</span>(<span class="code-str">'aura-eyecare.vercel.app'</span>);
+
+    logger.<span class="code-fn">info</span>(<span class="code-str">'Step 3: Registering dynamic test data for guaranteed cleanup...'</span>);
+    registry.<span class="code-fn">register</span>(<span class="code-str">'patient'</span>, <span class="code-str">'temp_usr_99'</span>, <span class="code-kw">async</span> () => {
+      logger.<span class="code-fn">info</span>(<span class="code-str">'Auto-cleaning test patient record...'</span>);
+      <span class="code-comment">// e.g. await userRepo.deleteBy('id', 'temp_usr_99');</span>
+    });
+
+    <span class="code-comment">// Teardown is guaranteed even if future assertions fail!</span>
+  });
+});
+      </div>
+    </div>
+
+    <!-- Tier Matrix Table -->
+    <h2 class="section-heading">Workflow Tier Comparison Matrix</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 15%;">Test Tier</th>
+            <th style="width: 25%;">Execution Command</th>
+            <th style="width: 25%;">Primary Components</th>
+            <th style="width: 35%;">Typical Use Cases</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag-scope tag-web">Web UI</span></td>
+            <td><code>npm run test:ui</code></td>
+            <td><code>basePage</code>, <code>BaseComponent</code>, <code>page</code></td>
+            <td>User journeys, visual verification, form validation, accessibility checks.</td>
+          </tr>
+          <tr>
+            <td><span class="tag-scope tag-api">REST API</span></td>
+            <td><code>npm run test:api</code></td>
+            <td><code>http</code>, <code>authService</code>, <code>SchemaValidator</code></td>
+            <td>Backend status codes, payload contract schemas (Zod), token refresh, edge cases.</td>
+          </tr>
+          <tr>
+            <td><span class="tag-scope tag-db">Database</span></td>
+            <td><code>npx playwright test tests/database</code></td>
+            <td><code>db</code>, <code>DbClient</code>, <code>UserRepository</code></td>
+            <td>Data migrations, schema constraints, stored procedure logic, offline health checks.</td>
+          </tr>
+          <tr>
+            <td><span class="tag-scope tag-hybrid">360° Hybrid</span></td>
+            <td><code>npm run test:hybrid</code></td>
+            <td><code>hybridTest</code> (UI + API + DB + Registry)</td>
+            <td>Critical end-to-end paths: Registration &rarr; Activation &rarr; DB Verification &rarr; Auto Teardown.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer>
+      pw-ui-api-fm &bull; Modern Enterprise Automation Workflow Architecture &bull; Generated September 2026
+    </footer>
+  </div>
+</body>
+</html>

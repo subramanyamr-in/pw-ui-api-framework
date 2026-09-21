@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Framework Architectural Benchmark Report: pw-ui-api-fm vs rajeshyemul/pw-ui-api-framework</title>
+  <style>
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #131b2e;
+      --bg-card: #1c2744;
+      --accent-blue: #38bdf8;
+      --accent-purple: #818cf8;
+      --accent-green: #34d399;
+      --accent-amber: #fbbf24;
+      --accent-rose: #fb7185;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border-color: #2e3d64;
+      --glass-bg: rgba(28, 39, 68, 0.65);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      padding: 2.5rem 1.5rem;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(129, 140, 248, 0.12));
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 2.5rem;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      margin-bottom: 1rem;
+    }
+
+    .badge-benchmark {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-blue);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(to right, #ffffff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p.subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 900px;
+      margin-bottom: 1.25rem;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .meta-item strong {
+      color: var(--text-main);
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1.5rem;
+    }
+
+    .stat-title {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .stat-value {
+      font-size: 1.65rem;
+      font-weight: 800;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* Benchmark Table */
+    .table-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 3rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    thead {
+      background-color: var(--bg-secondary);
+    }
+
+    th {
+      padding: 1.2rem 1.25rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    td {
+      padding: 1.1rem 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      vertical-align: top;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .col-feature {
+      font-weight: 600;
+      color: #f8fafc;
+      width: 20%;
+    }
+
+    .col-pw {
+      width: 38%;
+      color: #e2e8f0;
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .col-ref {
+      width: 42%;
+      color: #cbd5e1;
+    }
+
+    .tag-match {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      margin-bottom: 0.4rem;
+    }
+
+    .tag-superior {
+      background: rgba(52, 211, 153, 0.15);
+      color: var(--accent-green);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+
+    .tag-parity {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-blue);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .tag-missed {
+      background: rgba(251, 191, 36, 0.15);
+      color: var(--accent-amber);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    .section-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-card h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.85rem;
+      color: #f8fafc;
+    }
+
+    ul {
+      margin-left: 1.5rem;
+      color: #cbd5e1;
+    }
+
+    li {
+      margin-bottom: 0.65rem;
+    }
+
+    li strong {
+      color: #f1f5f9;
+    }
+
+    .code-pill {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.85rem;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--accent-blue);
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 4rem;
+      padding: 2rem 0;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <span class="badge badge-benchmark">Benchmark & Architecture Audit</span>
+      <h1>Framework Architectural Comparison Report</h1>
+      <p class="subtitle">
+        Deep technical assessment comparing <strong>pw-ui-api-fm</strong> (Our Modern Enterprise Framework) against 
+        <strong>rajeshyemul/pw-ui-api-framework</strong> (Reference Multi-tier Framework).
+      </p>
+      <div class="meta-row">
+        <div class="meta-item">Target Subject: <strong>pw-ui-api-fm (Active Framework)</strong></div>
+        <div class="meta-item">Benchmark Subject: <strong>rajeshyemul/pw-ui-api-framework</strong></div>
+        <div class="meta-item">Evaluated: <strong>September 2026</strong></div>
+        <div class="meta-item">Status: <strong>Production Ready (0 Quality Warnings)</strong></div>
+      </div>
+    </header>
+
+    <!-- Stat Highlights -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-title">Modern Tooling Stack</div>
+        <div class="stat-value" style="color: var(--accent-green);">TypeScript 6 & ESLint 10</div>
+        <div class="stat-desc">Reference repo uses older TS 5.9, ESLint 9, and Playwright 1.58</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Database Layer</div>
+        <div class="stat-value" style="color: var(--accent-green);">PostgreSQL Client</div>
+        <div class="stat-desc">Direct DB pooling, transactions, and repository pattern (Absent in ref repo)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Design Paradigm</div>
+        <div class="stat-value" style="color: var(--accent-blue);">Idiomatic Playwright</div>
+        <div class="stat-desc">Zero manual sleep/waitForTimeout anti-patterns or redundant wrapper layers</div>
+      </div>
+    </div>
+
+    <!-- Benchmark Comparison Table -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-feature">Architectural Layer</th>
+            <th class="col-pw">Our Framework (pw-ui-api-fm)</th>
+            <th class="col-ref">Reference Repo (rajeshyemul/pw-ui-api-framework)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="col-feature">Dependency Injection &amp; Fixture Architecture</td>
+            <td class="col-pw">
+              <span class="tag-match tag-superior">&check; Superior</span><br />
+              <strong>Modular <code>base.extend</code> and <code>mergeTests</code></strong>.<br />
+              Provides granular, layer-specific fixtures (<code>uiTest</code>, <code>apiTest</code>, <code>dbTest</code>) merged into a unified <code>hybridTest</code>. Zero global namespace pollution.
+            </td>
+            <td class="col-ref">
+              <strong>Monolithic <code>baseTest.ts</code></strong>.<br />
+              Instantiates and injects every service, page object, and utility into every test regardless of need, introducing unnecessary memory overhead for simple API or DB tests.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="col-feature">Web UI Page Object Model (POM)</td>
+            <td class="col-pw">
+              <span class="tag-match tag-superior">&check; Superior</span><br />
+              <strong>Component-Driven Architecture</strong>.<br />
+              Reusable, strictly scoped primitives (<code>TableComponent</code>, <code>ModalComponent</code>, <code>FormComponent</code>, <code>NotificationComponent</code>) extending <code>BaseComponent</code>. Rely on Playwright's native auto-waiting.
+            </td>
+            <td class="col-ref">
+              <strong>Monolithic Page Objects with Selenium-style wrappers</strong>.<br />
+              Heavy <code>WebActions</code> abstraction wrapping native locators in manual loops and hardcoded <code>page.waitForTimeout()</code> anti-patterns.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="col-feature">Database (PostgreSQL) Verification</td>
+            <td class="col-pw">
+              <span class="tag-match tag-superior">&check; Unique Capability</span><br />
+              <strong>Enterprise PostgreSQL Integration</strong>.<br />
+              Built-in <code>DbClient</code> wrapping <code>pg.Pool</code>, atomic transactions, parameterized queries, and typed <code>UserRepository</code> extending <code>BaseRepository</code>.
+            </td>
+            <td class="col-ref">
+              <strong>No Database Layer</strong>.<br />
+              Limited strictly to Web and API; cannot verify underlying database consistency or execute DB out-of-band assertions.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="col-feature">Runtime Schema Validation</td>
+            <td class="col-pw">
+              <span class="tag-match tag-parity">&check; Parity</span><br />
+              <strong>Zod Schema Contracts</strong>.<br />
+              Decoupled contract schemas (<code>LoginResponseSchema</code>, <code>PaginationSchema</code>) validated through <code>SchemaValidator</code> with formatted error messages.
+            </td>
+            <td class="col-ref">
+              <strong>Zod Contract Validation</strong>.<br />
+              Integrated schema validation within API service methods for catching contract drift.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="col-feature">Process-Safe Authentication</td>
+            <td class="col-pw">
+              <span class="tag-match tag-parity">&check; Parity</span><br />
+              <strong><code>TokenVault</code> &amp; <code>.auth/admin.json</code></strong>.<br />
+              File-backed token storage in <code>.auth/</code> ensuring parallel worker isolation without process race conditions.
+            </td>
+            <td class="col-ref">
+              <strong><code>AuthManager</code> &amp; <code>userStorage/</code></strong>.<br />
+              Similar file-based token and cookie caching strategy for parallel worker processes.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="col-feature">Test Data Lifecycle &amp; Cleanup</td>
+            <td class="col-pw">
+              <span class="tag-match tag-parity">&check; Parity</span><br />
+              <strong><code>TestDataRegistry</code> with LIFO Execution</strong>.<br />
+              Unconditional teardown executed via fixture <code>use()</code> post-test hooks, ensuring child entities are deleted before parent entities.
+            </td>
+            <td class="col-ref">
+              <strong><code>TestDataRegistry</code> with LIFO Execution</strong>.<br />
+              Tracks created entities and disposes of them in reverse order during fixture teardown.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="col-feature">Tooling &amp; Quality Standards</td>
+            <td class="col-pw">
+              <span class="tag-match tag-superior">&check; Superior</span><br />
+              <strong>TypeScript 6.0, ESLint 10, Playwright 1.63</strong>.<br />
+              Strict compiler options (<code>verbatimModuleSyntax</code>, <code>noUncheckedIndexedAccess</code>, <code>isolatedModules</code>), Prettier, Husky hooks. Zero <code>any</code> policy.
+            </td>
+            <td class="col-ref">
+              <strong>TypeScript 5.9, ESLint 9, Playwright 1.58</strong>.<br />
+              Uses legacy configs; includes custom test order manager and flaky monitor scripts.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Key Takeaways & Recommendations -->
+    <div class="section-card">
+      <h3 style="color: var(--accent-green);">1. Advantages of Our Architecture (Why pw-ui-api-fm is Superior)</h3>
+      <ul>
+        <li>
+          <strong>Native Idiomatic Playwright:</strong> We avoid legacy Selenium-style wrapper antipatterns (no custom wait loops, no <code>waitForTimeout</code> sleeps). Playwright's native auto-waiting and actionability checks are preserved intact.
+        </li>
+        <li>
+          <strong>True 360-Degree Testing (UI + API + DB):</strong> We include full PostgreSQL connection pooling, atomic rollback transactions, and repository-pattern DB queries, enabling end-to-end data integrity validation that pure UI/API frameworks cannot perform.
+        </li>
+        <li>
+          <strong>Modular Fixtures:</strong> Test files only import and receive what they actually use (e.g. <code>apiTest</code> has zero browser overhead; <code>uiTest</code> adds browser context; <code>hybridTest</code> merges all three).
+        </li>
+        <li>
+          <strong>Enterprise Code Quality Gate:</strong> Enforces zero-<code>any</code> policy in TypeScript, custom Playwright tag validation rules in ESLint 10, and pre-commit hooks via Husky + lint-staged.
+        </li>
+      </ul>
+    </div>
+
+    <div class="section-card">
+      <h3 style="color: var(--accent-blue);">2. Shared Architectural Strengths</h3>
+      <ul>
+        <li>
+          <strong>Process-Safe API Authentication:</strong> Both frameworks decouple UI browser storage from API bearer tokens using file-backed token vaults (<code>TokenVault</code> vs. <code>AuthManager</code>) to prevent worker state race conditions.
+        </li>
+        <li>
+          <strong>Runtime Contract Validation:</strong> Both frameworks leverage Zod schemas to ensure backend API response shapes remain strictly compliant without unexpected contract drift.
+        </li>
+        <li>
+          <strong>LIFO Test Data Teardown:</strong> Both frameworks feature a <code>TestDataRegistry</code> that logs created entities and executes deletions in reverse order (child records before parent records) to avoid foreign-key violations.
+        </li>
+        <li>
+          <strong>Multi-Transport Logging & Allure Reporting:</strong> Both frameworks feature structured Winston loggers with console colorization and persistent disk logs, coupled with <code>allure-playwright</code> reporting and environment metadata.
+        </li>
+        <li>
+          <strong>Automated Failure Triage:</strong> Both frameworks implement <code>FailureAnalyzer</code> to categorize errors into <code>LOCATOR_TIMEOUT</code>, <code>API_SERVER_ERROR</code>, <code>DATABASE_ERROR</code>, <code>SCHEMA_MISMATCH</code>, and <code>NETWORK_UNREACHABLE</code>.
+        </li>
+      </ul>
+    </div>
+
+    <div class="section-card">
+      <h3 style="color: var(--accent-amber);">3. Specialized Features Present in Reference Repo (Optional Future Enhancements)</h3>
+      <ul>
+        <li>
+          <strong>Test Reliability Monitor (<code>src/runner/testReliabilityMonitor/</code>):</strong>
+          The reference repo stores historical test execution runs in a local JSON file (<code>flaky-test-store.json</code>) and computes a flakiness percentage (<code>flakyRate</code>), classifying tests into HIGH, MEDIUM, LOW, and STABLE tiers with a custom HTML dashboard.
+        </li>
+        <li>
+          <strong>Custom Test Order Execution Manager (<code>src/runner/testOrderManager/</code>):</strong>
+          The reference repo includes a custom node runner script that parses custom priority tags (<code>@P1</code>, <code>@P2</code>, <code>@runFirst</code>, <code>@runLast</code>) enforced via a custom ESLint AST rule, executing tests in prioritized sequential buckets.
+        </li>
+        <li>
+          <strong>Extended File Parsing Utilities:</strong>
+          The reference repo includes helper utilities for parsing PDF (<code>pdf-parse</code>), Excel (<code>xlsx</code>), and XML (<code>xml2js</code>).
+        </li>
+      </ul>
+    </div>
+
+    <div class="section-card">
+      <h3>Strategic Recommendation</h3>
+      <p style="color: #cbd5e1; margin-bottom: 1rem;">
+        <strong>Our framework is more modern, faster, and architecturally cleaner.</strong> 
+        The reference repository has valuable ideas around flakiness tracking and priority ordering, but suffers from legacy Selenium-style habits (such as wrapping Playwright in retry-loops with hardcoded <code>waitForTimeout</code> sleeps).
+      </p>
+      <p style="color: #cbd5e1;">
+        If desired, we can selectively port the <strong>Flaky Test Reliability Monitor</strong> or <strong>Excel/PDF parser utilities</strong> into our clean utility layer (<code>@utils</code>) as an additive module without compromising our idiomatic Playwright principles.
+      </p>
+    </div>
+
+    <footer>
+      pw-ui-api-fm &bull; Enterprise Test Automation Framework Audit &bull; Generated September 2026
+    </footer>
+  </div>
+</body>
+</html>
